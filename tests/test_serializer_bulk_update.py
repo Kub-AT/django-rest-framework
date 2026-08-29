@@ -3,7 +3,7 @@ Tests to cover bulk create and update using serializers.
 """
 from django.test import TestCase
 
-from rest_framework import serializers
+from rest_framework import RemovedInDRF320Warning, serializers
 
 
 class BulkCreateSerializerTests(TestCase):
@@ -65,12 +65,15 @@ class BulkCreateSerializerTests(TestCase):
                 'author': 'Haruki Murakami'
             }
         ]
-        expected_errors = {
-            2: {'id': ['A valid integer is required.']}
-        }
+        expected_errors = [
+            {},
+            {},
+            {'id': ['A valid integer is required.']}
+        ]
 
         serializer = self.BookSerializer(data=data, many=True)
-        assert serializer.is_valid() is False
+        with self.assertWarns(RemovedInDRF320Warning):
+            assert serializer.is_valid() is False
         assert serializer.errors == expected_errors
         assert serializer.validated_data == []
 
@@ -80,11 +83,16 @@ class BulkCreateSerializerTests(TestCase):
         """
         data = ['foo', 'bar', 'baz']
         serializer = self.BookSerializer(data=data, many=True)
-        assert serializer.is_valid() is False
 
         message = 'Invalid data. Expected a dictionary, but got str.'
-        expected_errors = {idx: {'non_field_errors': [message]} for idx in range(len(data))}
+        expected_errors = [
+            {'non_field_errors': [message]},
+            {'non_field_errors': [message]},
+            {'non_field_errors': [message]}
+        ]
 
+        with self.assertWarns(RemovedInDRF320Warning):
+            assert serializer.is_valid() is False
         assert serializer.errors == expected_errors
 
     def test_invalid_single_datatype(self):

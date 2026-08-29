@@ -8,7 +8,9 @@ import pytest
 from django.db import models
 from django.test import TestCase
 
-from rest_framework import exceptions, fields, relations, serializers
+from rest_framework import (
+    RemovedInDRF320Warning, exceptions, fields, relations, serializers
+)
 from rest_framework.fields import Field
 
 from .models import (
@@ -667,7 +669,9 @@ class Test4606Regression:
 
     def test_4606_regression(self):
         serializer = self.Serializer(data=[{"name": "liz"}], many=True)
-        with pytest.raises(serializers.ValidationError):
+        with pytest.warns(RemovedInDRF320Warning), pytest.raises(
+            serializers.ValidationError
+        ):
             serializer.is_valid(raise_exception=True)
 
 
