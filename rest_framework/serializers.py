@@ -718,7 +718,7 @@ class ListSerializer(BaseSerializer):
                     '`REST_FRAMEWORK["LIST_SERIALIZER_ERRORS_AS_DICT"]` to '
                     '`True` to use the dictionary-based error format.',
                     RemovedInDRF320Warning,
-                    stacklevel=4
+                    stacklevel=5
                 )
                 errors = [errors.get(index, {}) for index in range(len(data))]
             raise ValidationError(errors)
