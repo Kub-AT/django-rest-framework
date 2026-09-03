@@ -5,7 +5,8 @@ from django.http import QueryDict
 from django.test import override_settings
 from django.utils.datastructures import MultiValueDict
 
-from rest_framework import RemovedInDRF320Warning, serializers
+from rest_framework import serializers
+from rest_framework.deprecation import RemovedInDRF320Warning
 from rest_framework.exceptions import ErrorDetail
 from tests.models import (
     CustomManagerModel, NullableOneToOneSource, OneToOneTarget
@@ -911,31 +912,7 @@ class TestListSerializerErrorBehavior:
         self.SampleSerializer = SampleSerializer
         self.WrapperSerializer = WrapperSerializer
 
-    def test_listserializer_list_error_format_by_default(self):
-        data = [
-            {"num": "1"},
-            {"num": "x"},
-            {"num": "0"},
-            {"num": "hello"},
-        ]
-
-        serializer = self.SampleSerializer(data=data, many=True)
-        with pytest.warns(
-            RemovedInDRF320Warning,
-            match='LIST_SERIALIZER_ERRORS_AS_DICT'
-        ) as warning:
-            assert not serializer.is_valid()
-
-        errors = serializer.errors
-        assert isinstance(errors, list)
-        assert errors[0] == {}
-        assert errors[1] == {"num": [ErrorDetail(string="Must be a valid boolean.", code="invalid")]}
-        assert errors[2] == {}
-        assert errors[3] == {"num": [ErrorDetail(string="Must be a valid boolean.", code="invalid")]}
-        assert warning[0].filename == __file__
-
-    @override_settings(REST_FRAMEWORK={'LIST_SERIALIZER_ERRORS_AS_DICT': True})
-    def test_listserializer_dict_error_format(self):
+    def test_listserializer_dict_error_format_by_default(self):
         data = [
             {"num": "1"},
             {"num": "x"},
@@ -956,18 +933,27 @@ class TestListSerializerErrorBehavior:
 
     @override_settings(REST_FRAMEWORK={'LIST_SERIALIZER_ERRORS_AS_DICT': False})
     def test_listserializer_explicit_legacy_error_format(self):
-        data = [{"num": "wrong"}]
+        data = [
+            {"num": "1"},
+            {"num": "wrong"},
+            {"num": "0"},
+        ]
 
         serializer = self.SampleSerializer(data=data, many=True)
-        with pytest.warns(RemovedInDRF320Warning):
+        with pytest.warns(
+            RemovedInDRF320Warning,
+            match='LIST_SERIALIZER_ERRORS_AS_DICT'
+        ) as warning:
             assert not serializer.is_valid()
 
         assert isinstance(serializer.errors, list)
         assert serializer.errors == [
-            {"num": [ErrorDetail(string="Must be a valid boolean.", code="invalid")]}
+            {},
+            {"num": [ErrorDetail(string="Must be a valid boolean.", code="invalid")]},
+            {},
         ]
+        assert warning[0].filename == __file__
 
-    @override_settings(REST_FRAMEWORK={'LIST_SERIALIZER_ERRORS_AS_DICT': True})
     def test_listserializer_and_listfield_consistency(self):
 
         data = {

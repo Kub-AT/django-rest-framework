@@ -27,8 +27,8 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from rest_framework import RemovedInDRF320Warning
 from rest_framework.compat import postgres_fields
+from rest_framework.deprecation import RemovedInDRF320Warning
 from rest_framework.exceptions import ErrorDetail, ValidationError
 from rest_framework.fields import get_error_detail
 from rest_framework.settings import api_settings
@@ -718,7 +718,7 @@ class ListSerializer(BaseSerializer):
                     '`REST_FRAMEWORK["LIST_SERIALIZER_ERRORS_AS_DICT"]` to '
                     '`True` to use the dictionary-based error format.',
                     RemovedInDRF320Warning,
-                    stacklevel=5
+                    stacklevel=4,
                 )
                 errors = [errors.get(index, {}) for index in range(len(data))]
             raise ValidationError(errors)

@@ -466,11 +466,11 @@ Default: `'non_field_errors'`
 
 Controls the format of per-item validation errors produced by `ListSerializer`, including serializers instantiated with `many=True`.
 
-When set to `False`, errors are returned as a list with one entry for each input item and an empty dictionary for each valid item. This format is deprecated and will be removed in REST framework 3.20.
+When set to `True`, errors are returned as a dictionary keyed by the indexes of invalid items. Valid items are omitted from the dictionary. This format was introduced in REST framework 3.18.0.
 
-When set to `True`, errors are returned as a dictionary keyed by the indexes of invalid items. Valid items are omitted from the dictionary. This format was introduced in REST framework 3.18.0 and is planned to become the default again in REST framework 3.19.
+When set to `False`, errors are returned in the list-based format used before REST framework 3.18, with one entry for each input item and an empty dictionary for each valid item. This format is deprecated and will be removed in REST framework 3.20.
 
-Default: `False`
+Default: `True`
 
 #### URL_FIELD_NAME
 
